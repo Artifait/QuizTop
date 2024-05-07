@@ -11,13 +11,14 @@ namespace QuizTop.Data.DataHandlers.QuizHandler
 {
     public class QuizAppender
     {
-        public static void AddNewQuiz(Quiz quiz)
+        public static int AddNewQuiz(Quiz quiz)
         {
-            quiz.IdQuiz = ++QuizDataBase.InfoQuizDataBase.CountQuiz;
-            quiz.IdQuizOfSubject = ++QuizDataBase.InfoQuizDataBase.CountQuizOfSubject[quiz.quizSubject];
+            quiz.IdQuiz = QuizDataBase.InfoQuizDataBase.CountQuiz++;
+            quiz.IdQuizOfSubject = QuizDataBase.InfoQuizDataBase.CountQuizOfSubject[quiz.quizSubject]++;
             QuizDataBaseSaver.SaveQuizDateBaseInfo();
             QuizDataBaseSaver.SaveQuiz(quiz);
             AddQuiz(quiz);
+            return quiz.IdQuiz;
         }
 
         public static void AddQuiz(Quiz quiz) => QuizDataBase.Quizs[quiz.quizSubject].Add(quiz);

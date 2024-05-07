@@ -52,7 +52,7 @@ namespace QuizTop.Data.DataStruct.UserRecordStruct
         public static List<UserRecord> GetAllRecordsByQuizTitle(string quizTitle)
         {
             if (!RecordsByTitle.ContainsKey(quizTitle))
-                RecordsByLogin[quizTitle] = new List<UserRecord>();
+                RecordsByLogin[quizTitle] = [];
             return RecordsByTitle[quizTitle];
         }
     }

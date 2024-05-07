@@ -23,6 +23,7 @@ namespace QuizTop.Data.DataStruct.QuestionStruct
     public static class QuestionDataBase
     {
         public static Dictionary<Subject, List<Question>> Questions = [];
+        public static Dictionary<int, Question> QuestionsById = [];
 
         public static InfoQuestionDataBase InfoQuestionDataBase { get; set; } = new InfoQuestionDataBase();
 
@@ -31,7 +32,21 @@ namespace QuizTop.Data.DataStruct.QuestionStruct
             foreach (Subject key in Enum.GetValues(typeof(Subject)))
                 Questions.Add(key, []);
         }
-
+        public static List<Question> GetQuestionBySubject(Subject subject)
+        {
+            List<Question> totalArray = [];
+            if(subject == Subject.AllEverything)
+            {
+                var allQuestionsList = Questions.Values.ToList();
+                foreach (var question in allQuestionsList)
+                    totalArray.AddRange(question);
+            }
+            else
+            {
+                totalArray = Questions[subject];
+            }
+            return totalArray;
+        }
         public static string GetFileNameInfoDateBase() => Application.DataBasePaths[typeof(QuestionDataBase)] + "QuestionDataBaseInfo.json";
     }
 }

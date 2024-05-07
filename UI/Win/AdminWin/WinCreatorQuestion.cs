@@ -4,9 +4,9 @@
 // MVID: C1907BD2-9C38-4A4D-AABC-BC06CA653E63
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
+using QuizTop.Data.DataHandlers.QuestionHandler;
 using QuizTop.Data.DataStruct.QuestionStruct;
 using QuizTop.Data.DataStruct.QuizStruct;
-using System.Runtime.CompilerServices;
 
 #nullable enable
 namespace QuizTop.UI.Win.AdminWin
@@ -14,17 +14,17 @@ namespace QuizTop.UI.Win.AdminWin
     internal class WinCreatorQuestion : IWin
     {
         public WindowDisplay windowDisplay;
-        public Question quiz;
-        public Subject QuestionSubject = Subject.Biology;
-        public TypeAnswer QuestionTypeAnswer = TypeAnswer.RadioAnswer;
+        public Question questionOut;
 
         public WinCreatorQuestion()
         {
             windowDisplay = new WindowDisplay("Creator Question", typeof(ProgramOptions), typeof(ProgramFields));
-            windowDisplay.AddOrUpdateField("Subject", Enum.GetName(QuestionSubject));
-            windowDisplay.AddOrUpdateField("TypeAnswer", Enum.GetName(QuestionTypeAnswer));
-            windowDisplay.AddOrUpdateField("Id", QuestionDataBase.InfoQuestionDataBase.CountQuestions.ToString());
-            windowDisplay.AddOrUpdateField("IdOfSubject", QuestionDataBase.InfoQuestionDataBase.CountQuestionsOfSubject[QuestionSubject].ToString());
+            questionOut = new();
+            UpdateId();
+
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.TypeAnswer),    Enum.GetName(questionOut.typeAnswer));
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.Subject),       Enum.GetName(questionOut.questionTypes));
+            
         }
 
         public WindowDisplay WindowDisplay
@@ -34,48 +34,58 @@ namespace QuizTop.UI.Win.AdminWin
         }
 
         public Type? ProgramOptionsType => typeof(ProgramOptions);
-
         public Type? ProgramFieldsType => typeof(ProgramFields);
 
         public int SizeX => windowDisplay.MaxLeft;
-
         public int SizeY => windowDisplay.MaxTop;
 
         public void Show() => windowDisplay.Show();
-
         public void InputHandler()
         {
             char lower = char.ToLower(Console.ReadKey().KeyChar);
-            WindowTools.UpdateCursorPos(lower, ref windowDisplay, 7);
-            if (!WindowTools.IsKeySelect(lower))
-                return;
-            HandlerMetodMenu();
+
+            WindowTools.UpdateCursorPos(lower, ref windowDisplay, (int)ProgramOptions.CountOptions);
+
+            if (WindowTools.IsKeySelect(lower)) HandlerMetodMenu();
         }
 
         private void HandlerMetodMenu()
         {
             Console.Clear();
-            switch (windowDisplay.CursorPosition)
+            
+            switch ((ProgramOptions)windowDisplay.CursorPosition)
             {
-                case 0:
-                    windowDisplay.AddOrUpdateField("QuestionText", InputterData.InputProperty("QuestionText"));
+                case ProgramOptions.InputQuestionText:
+                    string input = InputterData.InputProperty("QuestionText", "Whaaat?");
+                    questionOut.QuestionText = input;
+                    windowDisplay.AddOrUpdateField("QuestionText", input);
                     break;
-                case 1:
+
+                case ProgramOptions.InputSubject:
                     InputSubject();
                     break;
-                case 2:
+
+                case ProgramOptions.InputTypeAnswer:
                     InputTypeAnswer();
                     break;
-                case 3:
-                    InputAnswers();
+
+                case ProgramOptions.InputVariantAnswer:
+                    InputVariantAnswer();
                     break;
-                case 4:
+
+                case ProgramOptions.InputAnswer:
                     InputAnswer();
                     break;
-                case 5:
+
+                case ProgramOptions.InputPoints:
                     InputPoints();
                     break;
-                case 6:
+
+                case ProgramOptions.CreateQuestion:
+                    CreateQuestion();
+                    break;
+                
+                case ProgramOptions.Back:
                     Application.WinStack.Pop();
                     break;
             }
@@ -83,64 +93,179 @@ namespace QuizTop.UI.Win.AdminWin
 
         private void InputSubject()
         {
-            Array values = Enum.GetValues(typeof(Subject));
+            int countSubject = (int)Subject.CountSubject;
             Console.WriteLine("Введите нужный id предмета.");
-            for (int index = 0; index < values.Length - 1; ++index)
-            {
-                DefaultInterpolatedStringHandler interpolatedStringHandler = new DefaultInterpolatedStringHandler(3, 2);
-                interpolatedStringHandler.AppendFormatted<int>(index);
-                interpolatedStringHandler.AppendLiteral(" - ");
-                interpolatedStringHandler.AppendFormatted(Enum.GetName(typeof(Subject), (object)index));
-                Console.WriteLine(interpolatedStringHandler.ToStringAndClear());
-            }
-            QuestionSubject = (Subject)int.Parse(Console.ReadLine());
-            windowDisplay.AddOrUpdateField("Subject", Enum.GetName<Subject>(QuestionSubject));
-            WindowDisplay windowDisplay1 = windowDisplay;
-            int countQuestions = QuestionDataBase.InfoQuestionDataBase.CountQuestions;
-            string str1 = countQuestions.ToString();
-            windowDisplay1.AddOrUpdateField("Id", str1);
-            WindowDisplay windowDisplay2 = windowDisplay;
-            countQuestions = QuestionDataBase.InfoQuestionDataBase.CountQuestionsOfSubject[QuestionSubject];
-            string str2 = countQuestions.ToString();
-            windowDisplay2.AddOrUpdateField("IdOfSubject", str2);
+            for (int i = 0; i < countSubject; ++i)
+                Console.WriteLine($"{i} - {Enum.GetName(typeof(Subject), i)}");
+            
+            questionOut.questionTypes = (Subject)(int.Parse(Console.ReadLine()) % (int)Subject.CountSubject);
+
+
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.Subject),       Enum.GetName(questionOut.questionTypes));
+            UpdateId();
         }
 
         private void InputTypeAnswer()
         {
-            Array values = Enum.GetValues(typeof(TypeAnswer));
+            int countTypes = Enum.GetValues(typeof(TypeAnswer)).Length;
             Console.WriteLine("Введите id нужного типа ответа.");
-            for (int index = 0; index < values.Length; ++index)
-            {
-                DefaultInterpolatedStringHandler interpolatedStringHandler = new DefaultInterpolatedStringHandler(3, 2);
-                interpolatedStringHandler.AppendFormatted<int>(index);
-                interpolatedStringHandler.AppendLiteral(" - ");
-                interpolatedStringHandler.AppendFormatted(Enum.GetName(ProgramFieldsType, (object)index));
-                Console.WriteLine(interpolatedStringHandler.ToStringAndClear());
-            }
-            QuestionTypeAnswer = (TypeAnswer)int.Parse(Console.ReadLine());
-            windowDisplay.AddOrUpdateField("TypeAnswer", Enum.GetName<TypeAnswer>(QuestionTypeAnswer));
-        }
+            for (int i = 0; i < countTypes; ++i)
+                Console.WriteLine($"{i} - {Enum.GetName(typeof(TypeAnswer), i)}");
 
-        private void InputAnswers()
-        {
+            Console.CursorVisible = true;
+            questionOut.typeAnswer = (TypeAnswer)(int.Parse(Console.ReadLine()) % countTypes);
+            Console.CursorVisible = Application.CursorVisible;
+
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.TypeAnswer), Enum.GetName(questionOut.typeAnswer));
         }
 
         private void InputAnswer()
         {
+            Console.CursorVisible = true;
+            string? inputStr = string.Empty;
+            switch(questionOut.typeAnswer)
+            {
+                case TypeAnswer.InputAnswer:
+                    Console.WriteLine("Примеры ввода \"InputAnswer\": \'Хромосома\'; \'АфрИка\'; \'ГлаВное, чТоб БукВы БылИ ПраВиЛьнЫЕ, РЕгиСтР не ВажЕн\'. ");
+                    inputStr = Console.ReadLine();
+
+                    if(IsNormString(inputStr))
+                        questionOut.AnswerOfQuestion = inputStr.ToLower();
+                    break;
+
+                case TypeAnswer.RadioAnswer:
+                    Console.WriteLine("Примеры ввода \"RadioAnswer\": \'0\'; \'2\'.");
+                    inputStr = Console.ReadLine();
+
+                    if(IsNormString(inputStr) && int.TryParse(inputStr, out int value))
+                        questionOut.AnswerOfQuestion = value.ToString();
+                    break;
+
+                case TypeAnswer.MultiRadioAnswer:
+                    Console.WriteLine("Примеры ввода \"MultiRadioAnswer\": \'3,2\'; \'1,5\'; \'4\'.");
+                    inputStr = Console.ReadLine();
+                    if (IsNormString(inputStr))
+                    {
+                        var items = InputterData.ConvertStringToIntArray(inputStr);
+                        if(items != null && items.Count != 0)
+                            questionOut.AnswerOfQuestion = string.Join(", ", items);
+                    }
+                    break;
+
+            }
+
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.Answer), questionOut.AnswerOfQuestion);
+            Console.CursorVisible = Application.CursorVisible;
         }
 
+        private void InputVariantAnswer()
+        {
+            if (questionOut.typeAnswer == TypeAnswer.InputAnswer)
+            {
+                Console.Clear();
+                Console.WriteLine("Сюда нельзя когда выбран тип ответа: ввод с клавиатуры");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine("Через точку с запятой введите варианты ответов.\n Пример: почки и листья; стебель с листьями и почками; цветок");
+
+            Console.CursorVisible = true;
+            string? inputStr = Console.ReadLine();
+            Console.CursorVisible = Application.CursorVisible;
+
+            if (IsNormString(inputStr))
+            {
+                string[] strings = inputStr.Split(';').Select(element => element.Trim()).ToArray();
+                for (int i = 0; i < strings.Length; i++)
+                {
+                    questionOut.AnswerVariants[i] = strings[i];
+                }
+                windowDisplay.AddOrUpdateField(nameof(ProgramFields.VariantAnswer), string.Join("; ", strings));
+            }
+        }
         private void InputPoints()
         {
+            Console.WriteLine("Введите колво баллов за правильный ответ:");
+            int points = int.Parse(Console.ReadLine());
+            questionOut.CountPoints = Math.Abs(points);
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.CountPoints), points.ToString());
         }
 
+        public void CreateQuestion()
+        {
+            if(questionOut.CountPoints == 0)
+            {
+                WindowsHandler.AddInfoWindow(["Укажите колво баллов выдаваемых за вопрос."]);
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(questionOut.QuestionText))
+            {
+                WindowsHandler.AddInfoWindow(["Введите текст вопроса."]);
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(questionOut.AnswerOfQuestion))
+            {
+                WindowsHandler.AddInfoWindow(["Введите ответ на вопрос."]);
+                return;
+            }
+            if (questionOut.typeAnswer != TypeAnswer.InputAnswer )
+            {
+                if(questionOut.AnswerVariants.Count == 0)
+                {
+                    WindowsHandler.AddInfoWindow([
+                        $"Вы выбрали тип ответа: {Enum.GetName(questionOut.typeAnswer)}",
+                        "При данном выборе обязотельно нужно ввести минимум один вариант ответа."
+                    ]);
+                    return;
+                }
+                List<int> answers = InputterData.ConvertStringToIntArray(questionOut.AnswerOfQuestion);
+                var CanNumberAnswers = questionOut.AnswerVariants.Keys;
+                for(int i = 0; i < answers.Count; i++)
+                {
+                    if (!CanNumberAnswers.Contains(answers[i]))
+                    {
+                        WindowsHandler.AddInfoWindow([
+                            $"В Ответе на вопрос присутствует не допустимое значение.",
+                            $"Значение под номером: {i}, со значением: {answers[i]}.",
+                            $"Допустимые значения: {CanNumberAnswers.Count} > x >= 0)."
+                        ]);
+                        return;
+                    }
+                }
+            }
+            int id = QuestionsAppender.AddNewQuestion(questionOut);
+            WindowsHandler.AddInfoWindow([$"Создание Вопроса прошло Успешно!", $"Ему присвоен id: {id}"]);
+            questionOut = new();
+            windowDisplay.ClearValuesFields();
+            UpdateId();
+        }
+        public void UpdateId()
+        {
+            questionOut.IdQuestionOfSubject = QuestionDataBase.InfoQuestionDataBase.CountQuestionsOfSubject[Subject.Biology];
+            questionOut.IdQuestion          = QuestionDataBase.InfoQuestionDataBase.CountQuestions;
+
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.Id),            questionOut.IdQuestion.ToString());
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.IdOfSubject),   questionOut.IdQuestionOfSubject.ToString());
+        }
+        public bool IsNormString(string? input)
+        {
+            if(string.IsNullOrWhiteSpace(input))
+            {
+                WindowsHandler.AddInfoWindow(["Ваш Ввод Не Вкусный", "Попробуйте снова."]);
+                return false;
+            }
+            return true;
+        }
         public enum ProgramOptions
         {
             InputQuestionText,
             InputSubject,
             InputTypeAnswer,
-            InputAnswers,
+            InputVariantAnswer,
             InputAnswer,
             InputPoints,
+            CreateQuestion,
             Back,
             CountOptions,
         }
@@ -150,7 +275,7 @@ namespace QuizTop.UI.Win.AdminWin
             QuestionText,
             Subject,
             TypeAnswer,
-            Answers,
+            VariantAnswer,
             Answer,
             CountPoints,
             Id,

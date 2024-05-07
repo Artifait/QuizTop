@@ -40,25 +40,26 @@ namespace QuizTop
             Console.Title = "Art Quiz Top";
             CheckOrCreateDirDataBase();
             WinStack.Push(WindowsHandler.GetWindow<WinStart>());
+            //если вы это читаете то значит доделать подгрузку на лету не успел
             QuestionLoader.LoadQuestionDataBase();
             QuizLoader.LoadQuestionDataBase();
-            Question question = new()
-            {
-                QuestionText = "Что такое побег?",
-                typeAnswer = TypeAnswer.MultiRadioAnswer,
-                AnswerVariants = ["часть стебля", "почки и листья", "стебель с листьями и почками", "цветок"],
-                AnswerOfQuestion = "стебель с листьями и почками",
-                CountPoints = 1,
-                questionTypes = Subject.Biology
-            };
-            int id = QuestionsAppender.AddNewQuestion(question);
-            Quiz quiz = new()
-            {
-                questionIdList = [id],
-                quizSubject = Subject.Biology,
-                Title = "СуперВуперТестПОБиологии"
-            };
-            QuizAppender.AddNewQuiz(quiz);
+            //Question question = new()
+            //{
+            //    QuestionText = "Что такое побег?",
+            //    typeAnswer = TypeAnswer.MultiRadioAnswer,
+            //    AnswerVariants = new Dictionary<int, string> { { 1, "почки и листья" }, { 2, "стебель с листьями и почками" }, { 3, "цветок" } },
+            //    AnswerOfQuestion = "2",
+            //    CountPoints = 1,
+            //    questionTypes = Subject.Biology
+            //};
+            //int id = QuestionsAppender.AddNewQuestion(question);
+            //Quiz quiz = new()
+            //{
+            //    questionIdList = [id],
+            //    quizSubject = Subject.Biology,
+            //    Title = "СуперВуперТестПОБиологии"
+            //};
+            //QuizAppender.AddNewQuiz(quiz);
         }
 
         public static void Run()

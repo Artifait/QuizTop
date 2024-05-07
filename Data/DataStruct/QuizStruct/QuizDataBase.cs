@@ -4,9 +4,6 @@
 // MVID: C1907BD2-9C38-4A4D-AABC-BC06CA653E63
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
-using QuizTop.Data.DataStruct.QuestionStruct;
-using System;
-using System.Collections.Generic;
 
 #nullable enable
 namespace QuizTop.Data.DataStruct.QuizStruct
@@ -57,6 +54,6 @@ namespace QuizTop.Data.DataStruct.QuizStruct
             return quizFromPage;
         }
 
-        public static string GetFileNameInfoDateBase() => Application.DataBasePaths[typeof(QuestionDataBase)] + "QuizDataBaseInfo.json";
+        public static string GetFileNameInfoDateBase() => Application.DataBasePaths[typeof(QuizDataBase)] + "QuizDataBaseInfo.json";
     }
 }

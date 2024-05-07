@@ -25,7 +25,7 @@ namespace QuizTop.UI
         public static string InputProperty(string property, string defoaltValue)
         {
             string str = InputProperty(property);
-            return string.IsNullOrEmpty(str) ? defoaltValue : str;
+            return string.IsNullOrWhiteSpace(str) ? defoaltValue : str;
         }
 
         public static string InputPropertyWithWarningWin(string property, out bool Warning)
@@ -33,7 +33,7 @@ namespace QuizTop.UI
             string str = InputProperty(property);
             if (!propertyWarnings.ContainsKey(property))
                 propertyWarnings[property] = 0;
-            if (string.IsNullOrEmpty(str))
+            if (string.IsNullOrWhiteSpace(str))
             {
                 Warning = true;
                 WindowsHandler.AddInfoWindow([
@@ -97,6 +97,30 @@ namespace QuizTop.UI
                 }
             }
             return dateTime;
+        }
+
+
+        public static List<int> ConvertStringToIntArray(string? input)
+        {
+            if (input == null)
+                return [];
+
+            string[] parts = input.Split(',');
+
+            List<int> result = [];
+
+            foreach (string part in parts)
+            {
+                string numberString = new string(part.Where(c => char.IsDigit(c)).ToArray());
+
+                if (int.TryParse(numberString, out int number))
+                    result.Add(number);
+
+            }
+
+            result.Sort();
+
+            return result;
         }
     }
 }

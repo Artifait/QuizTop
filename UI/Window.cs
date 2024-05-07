@@ -86,7 +86,12 @@ namespace QuizTop.UI
             Options.Add(option);
             UpdateCanvas();
         }
-
+        public void ClearValuesFields()
+        {
+            foreach (var key in Fields.Keys)
+                Fields[key] = string.Empty;
+            UpdateCanvas();
+        }
         public WindowDisplay() : this("ОКНО", ["ОПЦИИ"], new Dictionary<string, string>(){{ "ПОЛЕ", "ЗНАЧЕНИЕ" }}) { }
         public WindowDisplay(char[,] canvasWindow) => CanvasWindow = canvasWindow;
         public WindowDisplay(string title, string[] options) : this(title, options, new Dictionary<string, string>()) { }

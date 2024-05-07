@@ -41,7 +41,7 @@ namespace QuizTop.Data.DataHandlers.QuestionHandler
 
 
         public static string GetSearchMaskQuestion(string strId = "*", string strSubject = "*", string strIdOfSubject = "*") 
-            => $"Question_{strId}_{strSubject}_{strIdOfSubject}_.json";
+            => $"Question_{strId}_{strSubject}_{strIdOfSubject}.json";
 
         public static void SaveQuestionDateBaseInfo()
         {

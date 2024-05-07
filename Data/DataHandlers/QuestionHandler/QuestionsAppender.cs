@@ -23,6 +23,11 @@ namespace QuizTop.Data.DataHandlers.QuestionHandler
             return question.IdQuestion;
         }
 
-        public static void AddQuestion(Question question) => QuestionDataBase.Questions[question.questionTypes].Add(question);
+        public static void AddQuestion(Question question)
+        {
+            QuestionDataBase.Questions[question.questionTypes].Add(question);
+            QuestionDataBase.QuestionsById[question.IdQuestion] = question;
+
+        }
     }
 }

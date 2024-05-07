@@ -40,6 +40,10 @@ namespace QuizTop.UI.Win.WinNotification
             Application.WinStack.Pop();
         }
 
-        public void Show() => windowDisplay.Show();
+        public void Show()
+        {
+            Console.Clear();
+            windowDisplay.Show();
+        }
     }
 }

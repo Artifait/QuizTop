@@ -24,10 +24,10 @@ namespace QuizTop.Data.DataStruct.QuestionStruct
         public TypeAnswer typeAnswer { get; set; }
 
         public string QuestionText { get; set; } = string.Empty;
-        public List<string> AnswerVariants { get; set; } = new List<string>();
+        public Dictionary<int, string> AnswerVariants { get; set; } = [];
         public string AnswerOfQuestion { get; set; } = string.Empty;
 
-        public int CountPoints { get; set; }
+        public int CountPoints { get; set; } = 0;
         public int IdQuestionOfSubject { get; set; }
         public int IdQuestion { get; set; }
     }

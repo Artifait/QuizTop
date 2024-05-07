@@ -18,14 +18,14 @@ namespace QuizTop.Data.DataHandlers.QuizHandler
             string path = Application.DataBasePaths[typeof(QuizDataBase)] + GetQuizFileName(quiz);
             try
             {
-                string contents = JsonSerializer.Serialize<Quiz>(quiz);
+                string contents = JsonSerializer.Serialize(quiz);
                 File.WriteAllText(path, contents);
             }
             catch (Exception ex) { EventBus.Publish("Error", ex); }
         }
 
         public static string GetQuizFileName(Quiz quiz) => GetSearchMaskQuiz(quiz.IdQuiz.ToString(), quiz.quizSubject.ToString(), quiz.IdQuiz.ToString());
-        public static string GetSearchMaskQuiz(string strId = "*", string strSubject = "*", string strIdOfSubject = "*") => $"Quiz_{strId}_{strIdOfSubject}_{strIdOfSubject}.json";
+        public static string GetSearchMaskQuiz(string strId = "*", string strSubject = "*", string strIdOfSubject = "*") => $"Quiz_{strId}_{strSubject}_{strIdOfSubject}.json";
 
         public static void SaveQuizDateBaseInfo()
         {
