@@ -4,6 +4,7 @@
 // MVID: C1907BD2-9C38-4A4D-AABC-BC06CA653E63
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
+using QuizTop.Data.DataStruct.QuestionStruct;
 using QuizTop.Data.DataStruct.UserStruct;
 
 #nullable enable
@@ -99,7 +100,51 @@ namespace QuizTop.UI
             return dateTime;
         }
 
+        public static string InputAnswerOfQuestion(TypeAnswer typeAnswer)
+        {
+            Console.CursorVisible = true;
+            string? inputStr = string.Empty;
+            switch (typeAnswer)
+            {
+                case TypeAnswer.InputAnswer:
+                    Console.WriteLine("Примеры ввода \"InputAnswer\": \'Хромосома\'; \'АфрИка\'; \'ГлаВное, чТоб БукВы БылИ ПраВиЛьнЫЕ, РЕгиСтР не ВажЕн\'. ");
+                    inputStr = Console.ReadLine();
 
+                    if (IsNormString(inputStr))
+                        inputStr = inputStr.ToLower();
+                    break;
+
+                case TypeAnswer.RadioAnswer:
+                    Console.WriteLine("Примеры ввода \"RadioAnswer\": \'0\'; \'2\'.");
+                    inputStr = Console.ReadLine();
+
+                    if (IsNormString(inputStr) && int.TryParse(inputStr, out int value))
+                        inputStr = value.ToString();
+                    break;
+
+                case TypeAnswer.MultiRadioAnswer:
+                    Console.WriteLine("Примеры ввода \"MultiRadioAnswer\": \'3,2\'; \'1,5\'; \'4\'.");
+                    inputStr = Console.ReadLine();
+                    if (IsNormString(inputStr))
+                    {
+                        var items = InputterData.ConvertStringToIntArray(inputStr);
+                        if (items != null && items.Count != 0)
+                            inputStr = string.Join(", ", items);
+                    }
+                    break;
+            }
+
+            return inputStr;
+        }
+        public static bool IsNormString(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                WindowsHandler.AddInfoWindow(["Ваш Ввод Не Вкусный", "Попробуйте снова."]);
+                return false;
+            }
+            return true;
+        }
         public static List<int> ConvertStringToIntArray(string? input)
         {
             if (input == null)

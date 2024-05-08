@@ -15,7 +15,8 @@ namespace QuizTop.UI.Win.QuizWin
         public Subject subjectSearch;
         private int PageNow;
         private List<Quiz> quizzesNowTheme;
-
+        private Quiz? _QuizNow;
+        
         public int SizeX => windowDisplay.MaxLeft;
         public int SizeY => windowDisplay.MaxTop;
 
@@ -83,8 +84,26 @@ namespace QuizTop.UI.Win.QuizWin
                 case ProgramOptions.PrevPage:
                     SetPage(PageNow - 1);
                     break;
-                case ProgramOptions.SelectTest:
-                    WindowsHandler.AddInfoWindow(["ЗАГЛУШКА!"]);
+                case ProgramOptions.InputIdQuiz:
+                    windowDisplay.WindowList[0].Show(false);
+                    Console.WriteLine("Введите нужный Id теста:");
+                    int id = int.Parse(Console.ReadLine());
+                    if(!QuizDataBase.QuizsById.TryGetValue(id, out var quiz))
+                    {
+                        WindowsHandler.AddInfoWindow([$"Теста по id: {id}, не найдено."]);
+                        return;
+                    }
+                    Console.Clear();
+                    _QuizNow = quiz;
+                    break;
+                case ProgramOptions.StartQuiz:
+                    if(_QuizNow == null)
+                    {
+                        WindowsHandler.AddInfoWindow([$"Чтоб начать тест\n Введите его id."]);
+                        return;
+                    }
+                    var winQuiz =  WindowsHandler.GetWindow<WinQuizGame>().ChooseQuiz(_QuizNow);
+                    Application.WinStack.Push(winQuiz);
                     break;
                 case ProgramOptions.Back:
                     Application.WinStack.Pop();
@@ -103,7 +122,8 @@ namespace QuizTop.UI.Win.QuizWin
         {
             NextPage,
             PrevPage,
-            SelectTest,
+            InputIdQuiz,
+            StartQuiz,
             Back,
             CountMethod,
         }
@@ -112,6 +132,8 @@ namespace QuizTop.UI.Win.QuizWin
         {
             Subject,
             Page,
+            IdQuiz,
+            TitleQuiz
         }
     }
 }

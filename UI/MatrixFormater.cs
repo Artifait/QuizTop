@@ -52,10 +52,7 @@ namespace QuizTop.UI
             return numberedWindowMatrix;
         }
 
-        public static string[] GetWindowMatrix(
-          string? title,
-          string[]? options,
-          Dictionary<string, string>? fields)
+        public static string[] GetWindowMatrix(string? title, string[]? options, Dictionary<string, string>? fields, bool numberedOptions = true)
         {
             int num1 = 2 * (string.IsNullOrEmpty(title) ? 0 : 1);
             int num2 = num1 + (num1 == 0 ? 2 : 1) * (fields == null || fields.Count == 0 ? 0 : 1);
@@ -82,16 +79,11 @@ namespace QuizTop.UI
             strArray2[index2] = str2;
             if (options != null && options.Length != 0)
             {
-                for (int index3 = 0; index3 < options.Length; ++index3)
+                for (int i = 0; i < options.Length; ++i)
                 {
-                    string[] strArray3 = windowMatrix;
                     int index4 = num9++;
-                    DefaultInterpolatedStringHandler interpolatedStringHandler = new DefaultInterpolatedStringHandler(5, 1);
-                    interpolatedStringHandler.AppendLiteral("|  ");
-                    interpolatedStringHandler.AppendFormatted<int>(index3 + 1);
-                    interpolatedStringHandler.AppendLiteral(") ");
-                    string str3 = interpolatedStringHandler.ToStringAndClear() + options[index3].PadRight(num6 - 6) + " |";
-                    strArray3[index4] = str3;
+                    if (numberedOptions) windowMatrix[index4] = $"|  {i + 1}) " + options[i].PadRight(num6 - 6) + " |";
+                    else windowMatrix[index4] = "|  " + options[i].PadRight(num6 - 4) + " |";
                 }
                 windowMatrix[num9++] = "| " + new string(' ', num6 - 2) + " |";
             }
@@ -148,7 +140,7 @@ namespace QuizTop.UI
         }
 
         public static char[,] GetWindowMatrixChar(string[] strings, string title) => StringToCharArrayMatrix(GetWindowMatrix(strings, title));
-        public static char[,] GetWindowMatrixChar(string? title,string[]? options, Dictionary<string, string>? fields) => StringToCharArrayMatrix(GetWindowMatrix(title, options, fields));
+        public static char[,] GetWindowMatrixChar(string? title,string[]? options, Dictionary<string, string>? fields, bool numberedOptions = true) => StringToCharArrayMatrix(GetWindowMatrix(title, options, fields));
 
         public static string[] GetQuestionMatrix(string[] strings)
         {

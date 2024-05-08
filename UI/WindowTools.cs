@@ -5,6 +5,8 @@
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
 #nullable enable
+using QuizTop.Data.DataStruct.QuestionStruct;
+
 namespace QuizTop.UI
 {
     public static class WindowTools
@@ -59,6 +61,17 @@ namespace QuizTop.UI
                 return;
 
             window.CursorPosition = minValue;
+        }
+
+        public static WindowDisplay GetQuestionWindow(Question question)
+        {
+            List<string> options = [];
+            
+            foreach (var idAndVarient in question.AnswerVariants)
+                options.Add(idAndVarient.Value);
+
+
+            return new(question.QuestionText, [.. options]) { NumberedOptions = false };
         }
     }
 }

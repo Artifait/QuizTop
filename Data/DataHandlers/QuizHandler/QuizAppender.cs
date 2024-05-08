@@ -21,6 +21,10 @@ namespace QuizTop.Data.DataHandlers.QuizHandler
             return quiz.IdQuiz;
         }
 
-        public static void AddQuiz(Quiz quiz) => QuizDataBase.Quizs[quiz.quizSubject].Add(quiz);
+        public static void AddQuiz(Quiz quiz)
+        {
+            QuizDataBase.Quizs[quiz.quizSubject].Add(quiz);
+            QuizDataBase.QuizsById[quiz.IdQuiz] = quiz;
+        }
     }
 }

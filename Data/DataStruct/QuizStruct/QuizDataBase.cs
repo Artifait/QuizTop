@@ -33,6 +33,7 @@ namespace QuizTop.Data.DataStruct.QuizStruct
     public static class QuizDataBase
     {
         public static Dictionary<Subject, List<Quiz>> Quizs = [];
+        public static Dictionary<int, Quiz> QuizsById = [];
         public static InfoQuizDataBase InfoQuizDataBase { get; set; } = new InfoQuizDataBase();
 
         static QuizDataBase()

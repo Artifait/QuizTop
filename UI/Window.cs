@@ -17,6 +17,7 @@ namespace QuizTop.UI
         public List<WindowDisplay> WindowList = [];
         private bool NeedUpdateCanvas = false;
         private bool _CursorVisibility = true;
+        private bool _NumberedOptions = true;
 
         public bool CursorVisibility
         {
@@ -26,7 +27,15 @@ namespace QuizTop.UI
                 _CursorVisibility = value;
             }
         }
-
+        public bool NumberedOptions
+        {
+            get => _NumberedOptions;
+            set
+            {
+                _NumberedOptions = value;
+                UpdateCanvas();
+            }
+        }
         public int IndexStartCursorPosition { get; set; } = 3;
         public int MaxLeft { get; private set; }
         public int MaxTop { get; private set; }
@@ -137,7 +146,7 @@ namespace QuizTop.UI
             CursorPosition = 0;
         }
 
-        public void Show(bool IsMain = true)
+        public void Show(bool IsMain = true, bool showInput = true)
         {
             if (NeedUpdateCanvas)
             {
@@ -156,9 +165,11 @@ namespace QuizTop.UI
             WindowList.ForEach(x => x.Show(false));
 
             if (!IsMain) return;
-            Console.Write("UserInput: ");
             MaxLeft = Math.Max(CanvasWindow.GetLength(1), WindowList.Count != 0 ? WindowList.Max(x => x.CanvasWindow.GetLength(1)) : 0);
             MaxTop = Console.CursorTop + 2;
+            if(showInput)
+                Console.Write("UserInput: ");
+
         }
         public void UpdateCanvas()
         {

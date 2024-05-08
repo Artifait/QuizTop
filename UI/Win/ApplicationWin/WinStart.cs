@@ -36,6 +36,7 @@ namespace QuizTop.UI.Win.ApplicationWin
         private void HandlerMetodMenu()
         {
             Console.Clear();
+            //вместо этого можно было сделать так: при создание windowDisplay мы передаем словарь ключ - ProgramOptions а значение делегат который будет вызываться мдаа
             switch ((ProgramOptions)windowDisplay.CursorPosition)
             {
                 case ProgramOptions.Registration:

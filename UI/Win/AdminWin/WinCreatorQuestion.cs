@@ -122,52 +122,14 @@ namespace QuizTop.UI.Win.AdminWin
         private void InputAnswer()
         {
             Console.CursorVisible = true;
-            string? inputStr = string.Empty;
-            switch(questionOut.typeAnswer)
-            {
-                case TypeAnswer.InputAnswer:
-                    Console.WriteLine("Примеры ввода \"InputAnswer\": \'Хромосома\'; \'АфрИка\'; \'ГлаВное, чТоб БукВы БылИ ПраВиЛьнЫЕ, РЕгиСтР не ВажЕн\'. ");
-                    inputStr = Console.ReadLine();
 
-                    if(IsNormString(inputStr))
-                        questionOut.AnswerOfQuestion = inputStr.ToLower();
-                    break;
-
-                case TypeAnswer.RadioAnswer:
-                    Console.WriteLine("Примеры ввода \"RadioAnswer\": \'0\'; \'2\'.");
-                    inputStr = Console.ReadLine();
-
-                    if(IsNormString(inputStr) && int.TryParse(inputStr, out int value))
-                        questionOut.AnswerOfQuestion = value.ToString();
-                    break;
-
-                case TypeAnswer.MultiRadioAnswer:
-                    Console.WriteLine("Примеры ввода \"MultiRadioAnswer\": \'3,2\'; \'1,5\'; \'4\'.");
-                    inputStr = Console.ReadLine();
-                    if (IsNormString(inputStr))
-                    {
-                        var items = InputterData.ConvertStringToIntArray(inputStr);
-                        if(items != null && items.Count != 0)
-                            questionOut.AnswerOfQuestion = string.Join(", ", items);
-                    }
-                    break;
-
-            }
-
+            questionOut.AnswerOfQuestion = InputterData.InputAnswerOfQuestion(questionOut.typeAnswer); 
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.Answer), questionOut.AnswerOfQuestion);
             Console.CursorVisible = Application.CursorVisible;
         }
 
         private void InputVariantAnswer()
         {
-            if (questionOut.typeAnswer == TypeAnswer.InputAnswer)
-            {
-                Console.Clear();
-                Console.WriteLine("Сюда нельзя когда выбран тип ответа: ввод с клавиатуры");
-                Console.ReadKey();
-                return;
-            }
-
             Console.WriteLine("Через точку с запятой введите варианты ответов.\n Пример: почки и листья; стебель с листьями и почками; цветок");
 
             Console.CursorVisible = true;
