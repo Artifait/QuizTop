@@ -27,6 +27,8 @@ namespace QuizTop.Data.DataHandlers.UserRecordHandler
             UserRecordDataBase.CreateOrUpdateRecord(record);
             UserRecordSaver.SaveUserRecord(record);
         }
+
+
         public static void DeleteRecord(UserRecord record)
         {
             CheckPath(record);

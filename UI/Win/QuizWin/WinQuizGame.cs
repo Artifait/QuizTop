@@ -122,19 +122,24 @@ namespace QuizTop.UI.Win.QuizWin
                 UserName = Application.UserNow.UserName,
                 Grade = 0
             };
+            int goodAnswers = 0;
             foreach(var answer in answersUser)
             {
                 var question = QuestionDataBase.QuestionsById[answer.Key];
                 string trueAnswer = question.AnswerOfQuestion;
 
-                if (trueAnswer == answer.Value)  record.Grade += question.CountPoints;
+                if (trueAnswer == answer.Value)
+                {
+                    record.Grade += question.CountPoints;
+                    goodAnswers++;
+                }
             }
 
             UserRecordAppender.AddNewRecord(record);
             QuizTimer.Enabled = false;
             
-            Application.WinStack.Pop();
-            WindowsHandler.AddInfoWindow(["Итоги Прохождения Теста.", $"Оценка: {record.Grade}"]);
+            Application.WinStack.Pop();//Правильных ответов: 12/30
+            WindowsHandler.AddInfoWindow(["Итоги Прохождения Теста.", $"Правильных ответов: {goodAnswers}/{_QuizForTest.questionIdList.Count}.",$"Оценка: {record.Grade}"]);
         }
         public void Show() {
             lock(locker)
