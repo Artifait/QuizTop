@@ -6,10 +6,11 @@
 
 
 #nullable enable
+using QuizTop.Data.DataHandlers.UserRecordHandler;
 using QuizTop.Data.DataStruct.QuestionStruct;
 using QuizTop.Data.DataStruct.QuizStruct;
-using QuizTop.UI.Win.ApplicationWin;
-
+using QuizTop.Data.DataStruct.UserRecordStruct;
+using Timer = System.Timers.Timer;
 namespace QuizTop.UI.Win.QuizWin
 {
     public class WinQuizGame : IWin
@@ -21,34 +22,48 @@ namespace QuizTop.UI.Win.QuizWin
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.QuestionNumber), "0");
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.ProgressComplete), "0/0");
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.QuizTitle), "Супер Тест");
+            QuizTimer.Elapsed += OnTimedEvent;
         }
-        public int SizeX => windowDisplay.MaxLeft;
-        public int SizeY => windowDisplay.MaxTop;
-
-        public WindowDisplay WindowDisplay
+        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
-            get => windowDisplay;
-            set => windowDisplay = value;
+            var spanTime = DateTime.Now - _DateQuizStart;
+            string totalStr = $"{spanTime.Hours} час {spanTime.Minutes} мин {spanTime.Seconds} сек";
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.QuizTime), totalStr);
+            windowDisplay.UpdateCanvas();
+            if(!_InWinInputAnswer) Show();
         }
+
+
 
         private Quiz? _QuizForTest;
         private Question? _QuestionNow;
+
+        private Timer QuizTimer = new(2000.0) { AutoReset = true, Enabled = true};
+        private DateTime _DateQuizStart = DateTime.Now;
+        object locker = new();
+        private bool _InWinInputAnswer = false;
+
         private int _QuestionNumberNow = -1;
         private Dictionary<int, string> answersUser = [];
         private Dictionary<int, WindowDisplay> displaysForQuestion = [];
-        public Type? ProgramOptionsType => typeof(ProgramOptions);
-        public Type? ProgramFieldsType => typeof(ProgramFields);
+
 
         public WinQuizGame ChooseQuiz(Quiz? quiz)
         {
             _QuizForTest = quiz ?? throw new ArgumentNullException("Такого теста нету");
+            _DateQuizStart = DateTime.Now;
+            QuizTimer.Enabled = true;
+
             windowDisplay.ClearValuesFields();
             answersUser.Clear();
 
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.TimeStart), _DateQuizStart.ToLongTimeString());
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.QuizTitle), _QuizForTest.Title);
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.ProgressComplete), $"0/{_QuizForTest.questionIdList.Count}");
 
+
             SetQuestionNumber(0);
+
             return this;
         }
         private void SetQuestionNumber(int newNumber)
@@ -74,17 +89,59 @@ namespace QuizTop.UI.Win.QuizWin
         {
             if (_QuestionNow == null) throw new ArgumentNullException("Нету вопроса Для ответа...");
 
+            displaysForQuestion[_QuestionNumberNow].Show(false);
             
             string inputAnswer = InputterData.InputAnswerOfQuestion(_QuestionNow.typeAnswer);
-
             displaysForQuestion[_QuestionNumberNow].AddOrUpdateField(nameof(InputAnswer), inputAnswer);
-            answersUser[_QuestionNow.IdQuestion] = inputAnswer;
-            windowDisplay.AddOrUpdateField(nameof(ProgramFields.ProgressComplete), $"0/{_QuizForTest.questionIdList.Count}");
 
+            if (_QuestionNow.typeAnswer != TypeAnswer.InputAnswer)
+            {
+                var arrayAnswers = InputterData.ConvertStringToIntArray(inputAnswer);
+                for(int i = 0; i < arrayAnswers.Count; i++)  arrayAnswers[i]--;
+                inputAnswer = string.Join(", ", arrayAnswers);
+            }
+            answersUser[_QuestionNow.IdQuestion] = inputAnswer;
+            windowDisplay.AddOrUpdateField(nameof(ProgramFields.ProgressComplete), $"{answersUser.Count}/{_QuizForTest.questionIdList.Count}");
+        }
+        public void FinishTest()
+        {
+            if(_QuizForTest == null)
+            {
+                Application.WinStack.Pop();
+                return;
+            }
+            
+            UserRecord record = new()
+            {
+                IdQuiz = _QuizForTest.IdQuiz,
+                IdQuizSubject = _QuizForTest.IdQuizOfSubject,
+                quizSubject = _QuizForTest.quizSubject,
+                QuizTitle = _QuizForTest.Title,
+                RecordDate = _DateQuizStart,
+                RecordTime = DateTime.Now - _DateQuizStart,
+                UserName = Application.UserNow.UserName,
+                Grade = 0
+            };
+            foreach(var answer in answersUser)
+            {
+                var question = QuestionDataBase.QuestionsById[answer.Key];
+                string trueAnswer = question.AnswerOfQuestion;
+
+                if (trueAnswer == answer.Value)  record.Grade += question.CountPoints;
+            }
+
+            UserRecordAppender.AddNewRecord(record);
+            QuizTimer.Enabled = false;
+            
+            Application.WinStack.Pop();
+            WindowsHandler.AddInfoWindow(["Итоги Прохождения Теста.", $"Оценка: {record.Grade}"]);
         }
         public void Show() {
-            windowDisplay.Show(true, false);
-            displaysForQuestion[_QuestionNumberNow].Show(false, false);
+            lock(locker)
+            {
+                windowDisplay.Show(true, false);
+                displaysForQuestion[_QuestionNumberNow].Show(false, false);
+            }
         }
         public void InputHandler()
         {
@@ -98,7 +155,6 @@ namespace QuizTop.UI.Win.QuizWin
         private void HandlerMetodMenu()
         {
             Console.Clear();
-            //вместо этого можно было сделать так: при создание windowDisplay мы передаем словарь ключ - ProgramOptions а значение делегат который будет вызываться мдаа
             switch ((ProgramOptions)windowDisplay.CursorPosition)
             {
                 case ProgramOptions.NextQuestion:
@@ -110,7 +166,12 @@ namespace QuizTop.UI.Win.QuizWin
                     break;
 
                 case ProgramOptions.InputAnswer:
+                    _InWinInputAnswer = true;
                     InputAnswer();
+                    _InWinInputAnswer = false;
+                    break;
+                case ProgramOptions.FinishQuiz:
+                    FinishTest();
                     break;
             }
         }
@@ -121,7 +182,6 @@ namespace QuizTop.UI.Win.QuizWin
             PrevQuestion,
             InputAnswer,
             FinishQuiz,
-            Back,
             CountOptions,
         }
 
@@ -130,6 +190,20 @@ namespace QuizTop.UI.Win.QuizWin
             QuestionNumber,
             QuizTitle,
             ProgressComplete,
+            TimeStart,
+            QuizTime
+        }
+
+        public Type? ProgramOptionsType => typeof(ProgramOptions);
+        public Type? ProgramFieldsType => typeof(ProgramFields);
+
+        public int SizeX => windowDisplay.MaxLeft;
+        public int SizeY => windowDisplay.MaxTop;
+
+        public WindowDisplay WindowDisplay
+        {
+            get => windowDisplay;
+            set => windowDisplay = value;
         }
     }
 }

@@ -45,10 +45,10 @@ namespace QuizTop.Data.DataHandlers.UserRecordHandler
             catch (Exception ex) { EventBus.Publish("Error", ex); }
         }
 
-        public static string GetUserRecordFileName(UserRecord record) => GetUserRecordFileName(record.UserName, record.QuizTitle);
-        public static string GetUserRecordFileName(string userName, string quizTitle) => GetSearchMaskUserRecord(userName, quizTitle);
+        public static string GetUserRecordFileName(UserRecord record) => GetUserRecordFileName(record.UserName, record.IdQuiz);
+        public static string GetUserRecordFileName(string userName, int quizId) => GetSearchMaskUserRecord(userName, quizId.ToString());
 
-        public static string GetSearchMaskUserRecord(string login = "*", string quizTitle = "*") => $"UserRecord_{login}_{quizTitle}.json";
+        public static string GetSearchMaskUserRecord(string login = "*", string strQuizId = "*") => $"UserRecord_{login}_{strQuizId}.json";
 
     }
 }

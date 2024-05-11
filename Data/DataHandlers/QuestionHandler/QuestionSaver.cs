@@ -45,7 +45,7 @@ namespace QuizTop.Data.DataHandlers.QuestionHandler
 
         public static void SaveQuestionDateBaseInfo()
         {
-            try { File.WriteAllText(QuestionDataBase.GetFileNameInfoDateBase(), JsonSerializer.Serialize<InfoQuestionDataBase>(QuestionDataBase.InfoQuestionDataBase)); }
+            try { File.WriteAllText(QuestionDataBase.GetFileNameInfoDateBase(), JsonSerializer.Serialize(QuestionDataBase.InfoQuestionDataBase)); }
             catch{ }
         }
     }

@@ -13,7 +13,7 @@ namespace QuizTop.Data.DataStruct.QuizStruct
         Biology,
         Geography,
         History,
-        Generator,
+        Programming,
         AllEverything,
         CountSubject,
     }
@@ -45,7 +45,15 @@ namespace QuizTop.Data.DataStruct.QuizStruct
         public static List<Quiz> GetQuizFromPage(int page, int countQuiz, Subject quizSubject)
         {
             List<Quiz> quizFromPage = [];
-            List<Quiz> quiz = Quizs[quizSubject];
+            List<Quiz> quiz = [];
+
+            if (quizSubject == Subject.AllEverything)
+                for(int i = 0; i < (int)Subject.CountSubject; i++)
+                    quiz.AddRange(Quizs[(Subject)i]);
+
+            else quiz = Quizs[quizSubject];
+
+
             int index1 = page * countQuiz;
             for (int index2 = index1 + countQuiz; index1 < index2; ++index1)
             {

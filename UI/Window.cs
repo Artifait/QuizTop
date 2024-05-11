@@ -173,7 +173,7 @@ namespace QuizTop.UI
         }
         public void UpdateCanvas()
         {
-            CanvasWindow = MatrixFormater.GetWindowMatrixChar(Title, [.. Options], Fields);
+            CanvasWindow = MatrixFormater.GetWindowMatrixChar(Title, [.. Options], Fields, NumberedOptions);
             CursorPosition = _CursorPosition;
             NeedUpdateCanvas = false;
         }

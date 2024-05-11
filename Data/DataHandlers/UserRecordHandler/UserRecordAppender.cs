@@ -13,8 +13,34 @@ namespace QuizTop.Data.DataHandlers.UserRecordHandler
     {
         public static void AddNewRecord(UserRecord record)
         {
+            UserRecordLoader.LoadUserRecord(UserRecordSaver.GetUserRecordFileName(record));
+            CheckPath(record);
+            
+            if (UserRecordDataBase.Records[record.UserName][record.quizSubject].TryGetValue(record.IdQuiz, out var oldRecord))
+            {
+                if(oldRecord.Grade >= record.Grade)
+                {
+                    return;
+                }
+                DeleteRecord(record);
+            }
             UserRecordDataBase.CreateOrUpdateRecord(record);
             UserRecordSaver.SaveUserRecord(record);
+        }
+        public static void DeleteRecord(UserRecord record)
+        {
+            CheckPath(record);
+            UserRecordDataBase.Records[record.UserName][record.quizSubject].Remove(record.IdQuiz);
+            UserRecordDataBase.RecordsByLogin[record.UserName].Remove(record);
+            UserRecordDataBase.RecordsByIdQuiz[record.IdQuiz].Remove(record);
+        }
+        public static void CheckPath(UserRecord record)
+        {
+            if (!UserRecordDataBase.Records.ContainsKey(record.UserName))
+                UserRecordDataBase.Records[record.UserName] = [];
+            if (!UserRecordDataBase.Records[record.UserName].ContainsKey(record.quizSubject))
+                UserRecordDataBase.Records[record.UserName][record.quizSubject] = [];
+
         }
     }
 }

@@ -4,7 +4,9 @@
 // MVID: C1907BD2-9C38-4A4D-AABC-BC06CA653E63
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
+using QuizTop.Data.DataHandlers.UserRecordHandler;
 using QuizTop.Data.DataStruct.QuizStruct;
+using QuizTop.Data.DataStruct.UserRecordStruct;
 
 #nullable enable
 namespace QuizTop.UI.Win.QuizWin
@@ -53,7 +55,7 @@ namespace QuizTop.UI.Win.QuizWin
                 windowDisplay.WindowList[0].Fields.Clear();
 
                 foreach (Quiz quiz in quizzesNowTheme)
-                    windowDisplay.WindowList[0].AddOrUpdateField(quiz.IdQuizOfSubject.ToString(), quiz.Title);
+                    windowDisplay.WindowList[0].AddOrUpdateField(quiz.IdQuiz.ToString(), quiz.Title);
 
                 if (windowDisplay.WindowList[0].Fields.Count == 0)
                     windowDisplay.WindowList[0].AddOrUpdateField(0.ToString(), "НЕТУ ТЕСТОВ");
@@ -68,7 +70,7 @@ namespace QuizTop.UI.Win.QuizWin
         {
             char lower = char.ToLower(Console.ReadKey().KeyChar);
 
-            WindowTools.UpdateCursorPos(lower, ref windowDisplay, 4);
+            WindowTools.UpdateCursorPos(lower, ref windowDisplay, (int)ProgramOptions.CountMethod);
 
             if (WindowTools.IsKeySelect(lower)) HandlerMetodMenu();
         }
@@ -84,6 +86,20 @@ namespace QuizTop.UI.Win.QuizWin
                 case ProgramOptions.PrevPage:
                     SetPage(PageNow - 1);
                     break;
+                case ProgramOptions.ShowQuizTop:
+                    if (_QuizNow == null)
+                    {
+                        WindowsHandler.AddInfoWindow([$"Чтоб посмотреть статиcтику по тесту.\n Введите его id."]);
+                        break;
+                    }
+                    UserRecordLoader.LoadQuizUserRecords(_QuizNow.IdQuiz);
+                    List<UserRecord> userRecords = UserRecordDataBase.GetAllRecordsByIdQuiz(_QuizNow.IdQuiz);
+                    List<(int, string)> msgRecords = [];
+                    userRecords.ForEach(x => msgRecords.Add((x.Grade, $"{x.UserName} - {x.Grade} баллов.")));
+                    msgRecords.Sort((x, y) => y.Item1.CompareTo(x.Item1));
+                    var resultArray = msgRecords.Take(20).Select(item => item.Item2).ToArray();
+                    WindowsHandler.AddInfoWindow(resultArray);
+                    break;
                 case ProgramOptions.InputIdQuiz:
                     windowDisplay.WindowList[0].Show(false);
                     Console.WriteLine("Введите нужный Id теста:");
@@ -95,6 +111,9 @@ namespace QuizTop.UI.Win.QuizWin
                     }
                     Console.Clear();
                     _QuizNow = quiz;
+                    windowDisplay.AddOrUpdateField(nameof(ProgramFields.TitleQuiz), _QuizNow.Title);
+                    windowDisplay.AddOrUpdateField(nameof(ProgramFields.IdQuiz), _QuizNow.IdQuiz.ToString());
+
                     break;
                 case ProgramOptions.StartQuiz:
                     if(_QuizNow == null)
@@ -124,6 +143,7 @@ namespace QuizTop.UI.Win.QuizWin
             PrevPage,
             InputIdQuiz,
             StartQuiz,
+            ShowQuizTop,
             Back,
             CountMethod,
         }

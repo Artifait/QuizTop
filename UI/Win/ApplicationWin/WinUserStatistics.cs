@@ -4,6 +4,7 @@
 // MVID: C1907BD2-9C38-4A4D-AABC-BC06CA653E63
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
+using QuizTop.Data.DataHandlers.UserRecordHandler;
 using QuizTop.Data.DataStruct.QuizStruct;
 using QuizTop.Data.DataStruct.UserRecordStruct;
 
@@ -20,6 +21,7 @@ namespace QuizTop.UI.Win.ApplicationWin
         {
             windowDisplay = new WindowDisplay("Quiz Application", ProgramOptionsType, ProgramFieldsType,
                 [new("Статистика по " + Enum.GetName((Subject)subjectSearch), [], new Dictionary<string, string>() { { "1", "Нету" } })]);
+            windowDisplay.WindowList[0].NumberedOptions = false;
             SetSubject(0);
         }
 
@@ -73,7 +75,19 @@ namespace QuizTop.UI.Win.ApplicationWin
 
 
             List<string> titlesRecords = [];
-            UserRecordDataBase.GetAllRecordsByLogin(Application.UserNow.UserName).ForEach(x => titlesRecords.Add(x.ToString()));
+            if((Subject)subjectSearch == Subject.AllEverything)
+            {
+                var AllRecords = UserRecordDataBase.GetAllRecordsByLogin(Application.UserNow.UserName);
+                AllRecords.ForEach(x => titlesRecords.Add($"{x.QuizTitle} - {x.Grade} баллов"));
+            }
+            else
+            {
+                if(UserRecordDataBase.Records[Application.UserNow.UserName].TryGetValue((Subject)subjectSearch, out var records))
+                {
+                    foreach (var item in records)
+                        titlesRecords.Add($"{item.Value.QuizTitle} - {item.Value.Grade} баллов");
+                }
+            }
             if (titlesRecords.Count == 0)
                 titlesRecords.Add("Нету Записей.");
 

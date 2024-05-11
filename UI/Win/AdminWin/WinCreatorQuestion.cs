@@ -100,7 +100,6 @@ namespace QuizTop.UI.Win.AdminWin
             
             questionOut.questionTypes = (Subject)(int.Parse(Console.ReadLine()) % (int)Subject.CountSubject);
 
-
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.Subject),       Enum.GetName(questionOut.questionTypes));
             UpdateId();
         }
@@ -204,7 +203,7 @@ namespace QuizTop.UI.Win.AdminWin
         }
         public void UpdateId()
         {
-            questionOut.IdQuestionOfSubject = QuestionDataBase.InfoQuestionDataBase.CountQuestionsOfSubject[Subject.Biology];
+            questionOut.IdQuestionOfSubject = QuestionDataBase.InfoQuestionDataBase.CountQuestionsOfSubject[questionOut.questionTypes];
             questionOut.IdQuestion          = QuestionDataBase.InfoQuestionDataBase.CountQuestions;
 
             windowDisplay.AddOrUpdateField(nameof(ProgramFields.Id),            questionOut.IdQuestion.ToString());

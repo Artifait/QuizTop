@@ -1,5 +1,6 @@
 ﻿using QuizTop.Data.DataHandlers.QuestionHandler;
 using QuizTop.Data.DataHandlers.QuizHandler;
+using QuizTop.Data.DataHandlers.UserRecordHandler;
 using QuizTop.Data.DataStruct.QuestionStruct;
 using QuizTop.Data.DataStruct.QuizStruct;
 using QuizTop.Data.DataStruct.UserRecordStruct;
@@ -38,28 +39,12 @@ namespace QuizTop
         private static void Init()
         {
             Console.Title = "Art Quiz Top";
+            Console.SetWindowSize(80, 40);
             CheckOrCreateDirDataBase();
             WinStack.Push(WindowsHandler.GetWindow<WinStart>());
-            //если вы это читаете то значит доделать подгрузку на лету не успел
             QuestionLoader.LoadQuestionDataBase();
-            QuizLoader.LoadQuestionDataBase();
-            //Question question = new()
-            //{
-            //    QuestionText = "Что такое побег?",
-            //    typeAnswer = TypeAnswer.MultiRadioAnswer,
-            //    AnswerVariants = new Dictionary<int, string> { { 1, "почки и листья" }, { 2, "стебель с листьями и почками" }, { 3, "цветок" } },
-            //    AnswerOfQuestion = "2",
-            //    CountPoints = 1,
-            //    questionTypes = Subject.Biology
-            //};
-            //int id = QuestionsAppender.AddNewQuestion(question);
-            //Quiz quiz = new()
-            //{
-            //    questionIdList = [id],
-            //    quizSubject = Subject.Biology,
-            //    Title = "СуперВуперТестПОБиологии"
-            //};
-            //QuizAppender.AddNewQuiz(quiz);
+            QuizLoader.LoadQuizDataBase();
+            
         }
 
         public static void Run()

@@ -5,6 +5,7 @@
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
 using QuizTop.Data.DataHandlers.Base;
+using QuizTop.Data.DataStruct.QuestionStruct;
 using QuizTop.Data.DataStruct.QuizStruct;
 using System.Text.Json;
 
@@ -15,8 +16,9 @@ namespace QuizTop.Data.DataHandlers.QuizHandler
     {
         private static bool DataHandled;
 
-        public static void LoadQuestionDataBase()
+        public static void LoadQuizDataBase()
         {
+            LoadQuizDateBaseInfo();
             foreach (string file in Directory.GetFiles(Application.DataBasePaths[typeof(QuizDataBase)], QuizDataBaseSaver.GetSearchMaskQuiz()))
             {
                 try
@@ -27,6 +29,15 @@ namespace QuizTop.Data.DataHandlers.QuizHandler
                 catch { }
             }
             DataHandled = true;
+        }
+        public static void LoadQuizDateBaseInfo()
+        {
+            InfoQuizDataBase quizDataBase;
+
+            try { quizDataBase = JsonSerializer.Deserialize<InfoQuizDataBase>(File.ReadAllText(QuizDataBase.GetFileNameInfoDateBase())) ?? new InfoQuizDataBase(); }
+            catch { quizDataBase = new InfoQuizDataBase(); }
+
+            QuizDataBase.InfoQuizDataBase = quizDataBase;
         }
     }
 }

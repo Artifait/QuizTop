@@ -115,7 +115,7 @@ namespace QuizTop.UI
                     break;
 
                 case TypeAnswer.RadioAnswer:
-                    Console.WriteLine("Примеры ввода \"RadioAnswer\": \'0\'; \'2\'.");
+                    Console.WriteLine("Примеры ввода \"RadioAnswer\": \'2\'.");
                     inputStr = Console.ReadLine();
 
                     if (IsNormString(inputStr) && int.TryParse(inputStr, out int value))

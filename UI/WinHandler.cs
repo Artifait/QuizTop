@@ -33,12 +33,15 @@ namespace QuizTop.UI
             Application.WinStack.Push(window);
         }
 
-        public static void AddInfoWindow(string[] messages)
+        public static void AddInfoWindow(string[]? messages)
         {
             WinInfo window = GetWindow<WinInfo>();
             List<string> stringList1 = [];
-            foreach (string message in messages)
-                stringList1.AddRange(message.Split('\n'));
+            if (messages == null)
+                stringList1.Add("Нет Сообщений");
+            else
+                foreach (string message in messages)
+                    stringList1.AddRange(message.Split('\n'));
 
             window.UpdateInfoMsg([.. stringList1]);
             Application.WinStack.Push(window);

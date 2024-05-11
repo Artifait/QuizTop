@@ -5,6 +5,7 @@
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
 using QuizTop.Data.DataHandlers.Base;
+using QuizTop.Data.DataStruct.QuizStruct;
 using QuizTop.Data.DataStruct.UserRecordStruct;
 using System.IO;
 using System.Text.Json;
@@ -31,12 +32,30 @@ namespace QuizTop.Data.DataHandlers.UserRecordHandler
         public static void LoadUserRecords(string Login)
         {
             string[] files = Directory.GetFiles(Application.DataBasePaths[typeof(UserRecordDataBase)], UserRecordSaver.GetSearchMaskUserRecord(Login));
+
             if (files == null)
                 return;
             foreach (string fileName in files)
                 LoadUserRecord(fileName);
+
+            if (!UserRecordDataBase.Records.ContainsKey(Login))
+                UserRecordDataBase.Records[Login] = [];
+            if (!UserRecordDataBase.RecordsByLogin.ContainsKey(Login))
+                UserRecordDataBase.RecordsByLogin[Login] = [];
         }
 
+        public static void LoadQuizUserRecords(int IdQuiz)
+        {
+            string[] files = Directory.GetFiles(Application.DataBasePaths[typeof(UserRecordDataBase)], UserRecordSaver.GetSearchMaskUserRecord(strQuizId: IdQuiz.ToString()));
+
+            if (files == null)
+                return;
+            foreach (string fileName in files)
+                LoadUserRecord(fileName);
+
+            if (!UserRecordDataBase.RecordsByIdQuiz.ContainsKey(IdQuiz))
+                UserRecordDataBase.RecordsByIdQuiz[IdQuiz] = [];
+        }
         public static void LoadUserRecord(string fileName)
         {
             try

@@ -32,6 +32,7 @@ namespace QuizTop.Data.DataStruct.QuestionStruct
             foreach (Subject key in Enum.GetValues(typeof(Subject)))
                 Questions.Add(key, []);
         }
+
         public static List<Question> GetQuestionBySubject(Subject subject)
         {
             List<Question> totalArray = [];

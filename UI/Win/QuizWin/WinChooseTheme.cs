@@ -52,7 +52,7 @@ namespace QuizTop.UI.Win.QuizWin
             Biology,
             Geography,
             History,
-            Generator,
+            Programming,
             AllEverything,
             Back,
             CountOptions,

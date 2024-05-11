@@ -13,33 +13,46 @@ namespace QuizTop.Data.DataStruct.UserRecordStruct
     {
         public static Dictionary<string, Dictionary<Subject, Dictionary<int, UserRecord>>> Records = [];
         public static Dictionary<string, List<UserRecord>> RecordsByLogin = [];
-        public static Dictionary<string, List<UserRecord>> RecordsByTitle = [];
+        public static Dictionary<int, List<UserRecord>> RecordsByIdQuiz = [];
 
         public static void CreateOrUpdateRecord(UserRecord record)
         {
             if (record == null)
                 return;
+
             string userName = record.UserName;
             Subject quizSubject = record.quizSubject;
             string quizTitle = record.QuizTitle;
             int idQuiz = record.IdQuiz;
 
+            // Удаление дубликатов и оставление только записи с наивысшим Grade
+            if (Records.ContainsKey(userName) && Records[userName].ContainsKey(quizSubject) && Records[userName][quizSubject].ContainsKey(idQuiz))
+            {
+                UserRecord existingRecord = Records[userName][quizSubject][idQuiz];
+                if (record.Grade > existingRecord.Grade)
+                {
+                    Records[userName][quizSubject][idQuiz] = record;
+                    RecordsByLogin[userName].Remove(existingRecord);
+                    RecordsByIdQuiz[idQuiz].Remove(existingRecord);
+                }
+            }
+            else
+            {
+                if (!Records.ContainsKey(userName))
+                    Records[userName] = new Dictionary<Subject, Dictionary<int, UserRecord>>();
+                if (!Records[userName].ContainsKey(quizSubject))
+                    Records[userName][quizSubject] = new Dictionary<int, UserRecord>();
 
-            if (!Records.ContainsKey(userName))
-                Records[userName] = [];
-            if (!Records[userName].ContainsKey(quizSubject))
-                Records[userName][quizSubject] = [];
-            Records[userName][quizSubject][idQuiz] = record;
+                Records[userName][quizSubject][idQuiz] = record;
 
+                if (!RecordsByLogin.ContainsKey(userName))
+                    RecordsByLogin[userName] = new List<UserRecord>();
+                RecordsByLogin[userName].Add(record);
 
-            if (!RecordsByLogin.ContainsKey(userName)) 
-                RecordsByLogin[userName] = [];
-            RecordsByLogin[userName].Add(record);
-
-
-            if (!RecordsByTitle.ContainsKey(userName))
-                RecordsByTitle[quizTitle] = [];
-            RecordsByTitle[quizTitle].Add(record);
+                if (!RecordsByIdQuiz.ContainsKey(idQuiz))
+                    RecordsByIdQuiz[idQuiz] = new List<UserRecord>();
+                RecordsByIdQuiz[idQuiz].Add(record);
+            }
         }
 
         public static List<UserRecord> GetAllRecordsByLogin(string Login)
@@ -49,11 +62,14 @@ namespace QuizTop.Data.DataStruct.UserRecordStruct
             return RecordsByLogin[Login];
         }
 
-        public static List<UserRecord> GetAllRecordsByQuizTitle(string quizTitle)
+        public static List<UserRecord> GetAllRecordsByIdQuiz(int idQuiz)
         {
-            if (!RecordsByTitle.ContainsKey(quizTitle))
-                RecordsByLogin[quizTitle] = [];
-            return RecordsByTitle[quizTitle];
+            if (!RecordsByIdQuiz.ContainsKey(idQuiz))
+                RecordsByIdQuiz[idQuiz] = [];
+
+            return RecordsByIdQuiz[idQuiz];
         }
+
+        public static string GetFileNameInfoDateBase() => Application.DataBasePaths[typeof(UserRecordDataBase)] + "RecordDataBaseInfo.json";
     }
 }

@@ -5,6 +5,8 @@
 // Assembly location: C:\Users\user\OneDrive\Рабочий стол\net8.0\QuizTop.dll
 
 using QuizTop.Data.DataHandlers.UserHandler;
+using QuizTop.Data.DataHandlers.UserRecordHandler;
+using QuizTop.Data.DataStruct.UserRecordStruct;
 using QuizTop.UI;
 using System;
 using System.Collections.Generic;
@@ -45,14 +47,33 @@ namespace QuizTop.Data.DataStruct.UserStruct
 
         public static void ChangeLogin()
         {
-            string str = InputterData.InputPropertyWithWarningWin(nameof(User.UserName), out bool Warning);
-            if (Warning || !User.ValidationUserName(str))
+            string newUserName = InputterData.InputPropertyWithWarningWin(nameof(User.UserName), out bool Warning);
+            if (Warning || !User.ValidationUserName(newUserName))
                 throw new ArgumentException("ИНVALIDНЫЕ ДАННЫЕ!");
-            UserPropertyValidater(Application.UserNow.UserName, str, nameof(User.UserName));
+            UserPropertyValidater(Application.UserNow.UserName, newUserName, nameof(User.UserName));
             UsersByLogin.Remove(Application.UserNow.UserName);
-            File.WriteAllText(Application.DataBasePaths[typeof(UserDataBase)] + UserSaver.GetUserFileName(str), ChangePropertyUser(File.ReadAllText(UserNowPath), nameof(User.UserName), str));
+
+            try
+            {
+                if(UserRecordDataBase.RecordsByLogin.TryGetValue(Application.UserNow.UserName, out var records))
+                {
+                    for (int i = 0, cnt = records.Count; i < cnt; i++)
+                    {
+                        string fileName = Application.DataBasePaths[typeof(UserRecordDataBase)] + UserRecordSaver.GetUserRecordFileName(records[0]);
+                        File.Delete(fileName);
+                        UserRecord newUserRecord = records[0];
+                        UserRecordAppender.DeleteRecord(records[0]);
+                        newUserRecord.UserName = newUserName;
+                        UserRecordAppender.AddNewRecord(newUserRecord);
+                    }
+                }
+            }
+            catch { }
+            
+            
+            File.WriteAllText(Application.DataBasePaths[typeof(UserDataBase)] + UserSaver.GetUserFileName(newUserName), ChangePropertyUser(File.ReadAllText(UserNowPath), nameof(User.UserName), newUserName));
             File.Delete(UserNowPath);
-            Application.UserNow.UserName = str;
+            Application.UserNow.UserName = newUserName;
         }
 
         public static void ChangePassword()
